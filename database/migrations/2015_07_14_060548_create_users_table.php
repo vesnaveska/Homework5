@@ -19,6 +19,11 @@ class CreateUsersTable extends Migration
             $table->string('email')->unique();            
             $table->timestamps();
         });
+		
+		Schema::table('books', function (Blueprint $table) {
+            $table->integer('user_id')->unsigned()->nullable();
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+        });
     }
 
     /**

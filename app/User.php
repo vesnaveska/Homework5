@@ -21,4 +21,7 @@ class User extends Model
      */
     protected $fillable = ['firstname', 'lastname', 'email'];
  
+    public function books(){
+        return $this->hasMany('Book', 'user_id');
+    }
 }

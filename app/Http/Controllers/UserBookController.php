@@ -24,6 +24,7 @@ class UserBookController extends Controller
         $book = Book::paginate(10);
 		
 		return view('userbook/index', array('books' => $book));
+				
     }
 
     /**
@@ -33,7 +34,7 @@ class UserBookController extends Controller
      */
     public function create()
     {
-
+		return view('userbook/create');
     }
 
     /**
@@ -55,7 +56,8 @@ class UserBookController extends Controller
      */
     public function show($id)
     {
-       
+       $book = Book::find($id);
+	   return view('userbook/show', array('book'=>$book));
     }
 
     /**
@@ -66,7 +68,8 @@ class UserBookController extends Controller
      */
     public function edit($id)
     {
-        
+       $book = Book::find($id);
+       return view('userbook/edit', array('book' => $book)); 
     }
 
     /**
@@ -78,7 +81,33 @@ class UserBookController extends Controller
      */
     public function update(Request $request, $id)
     {
+		$rules = array(
+            'title' => 'required',
+            'author' => 'required|regex:/^([A-Za-z]+)$/',
+            'year' => 'required|numeric',
+            'genre' => 'required|regex:/^([A-Za-z]+)$/',
+			'user_id' => 'numeric'
+        ); 
 		
+       $validator = Validator::make($request->all(), $rules);
+		
+		if ($validator->fails()) {
+            return Redirect::to('userbook/edit')
+                ->withErrors($validator)
+                ->withInput();
+        } else {			
+           		
+			$book = Book::find($id);
+            $book->title = $request->title;
+            $book->author = $request->author;
+            $book->year = $request->year;
+            $book->genre = $request->genre;
+			$book->user_id = $request->user_id;
+            $book->save();
+
+            Session::flash('message', 'Successfully updated link user-book');
+            return Redirect::to('userbook');
+        }		
     }
 
     /**
@@ -89,6 +118,10 @@ class UserBookController extends Controller
      */
     public function destroy($id)
     {
-     
+        $book = Book::find($id);
+        $book->user_id = null;
+		$book->save();
+        Session::flash('message', 'Successfully deleted link user-book');
+        return Redirect::to('userbook');    
     }
 }
